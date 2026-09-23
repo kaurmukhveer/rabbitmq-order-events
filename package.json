@@ -1,0 +1,14 @@
+{
+  "name": "rabbitmq-order-events",
+  "version": "1.0.0",
+  "description": "Producer/consumer demo using RabbitMQ (direct exchange) to process simulated order events",
+  "main": "producer.js",
+  "type": "commonjs",
+  "scripts": {
+    "producer": "node producer.js",
+    "consumer": "node consumer.js"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.4"
+  }
+}

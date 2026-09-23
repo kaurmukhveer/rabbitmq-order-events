@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-order-events
+    ports:
+      - "5672:5672"   # AMQP protocol port (used by producer.js / consumer.js)
+      - "15672:15672" # Management UI (http://localhost:15672 — login: guest/guest)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
