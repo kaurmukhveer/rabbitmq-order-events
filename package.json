@@ -7,7 +7,7 @@
   "scripts": {
     "producer": "node producer.js",
     "consumer": "node consumer.js",
-    "test": "jest",
+    "test": "jest --runInBand",
     "test:python": "pytest tests/test_schema.py -v"
   },
   "dependencies": {

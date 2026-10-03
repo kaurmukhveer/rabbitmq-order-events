@@ -33,7 +33,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Jest (schema, message-handler, API/RBAC)
-        run: npx jest
+        run: npx jest --runInBand
 
       - name: Run pytest (schema.py)
         run: pytest tests/test_schema.py -v
