@@ -1,2 +1,23 @@
+# Dependencies
 node_modules/
-.env/
+venv/
+
+# Environment Secrets (Add this file rule now so you don't accidentally commit it later)
+.env
+
+# Python Caches
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# SQLite database (generated data, not code)
+*.db
+*.db-shm
+*.db-wal
+
+
+# Test files you wanted to ignore
+test-auth.js
+
+# Logs
+*.log

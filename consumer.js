@@ -1,33 +1,16 @@
-/**
- * consumer.js
- *
- * Consumes "order.created" events from RabbitMQ and simulates processing them.
- *
- * Concepts demonstrated:
- *  - Queue: where messages actually sit until a consumer picks them up.
- *  - Binding: the link between an exchange and a queue, with a routing key —
- *    this queue is bound to "order.created" only, so it never sees "order.shipped".
- *  - Manual acknowledgement (ack): the consumer tells RabbitMQ "I finished this
- *    message successfully" only AFTER processing completes. If the consumer
- *    crashes before ack-ing, RabbitMQ redelivers the message — this is what makes
- *    the system resilient to a consumer dying mid-task.
- *  - prefetch(1): tells RabbitMQ "don't send me a new message until I've ack'd
- *    the current one" — a basic form of backpressure / fair dispatch.
- */
 const amqp = require("amqplib");
+
+const { handleMessage } = require("./message-handler");
+const { createApp } = require("./api");
 
 const EXCHANGE = "orders_exchange";
 const QUEUE = "order_processing_queue";
 const ROUTING_KEY = "order.created";
-
-async function simulateProcessing(order) {
-  // Stand-in for real work: e.g., writing to a database, calling another service.
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  console.log(`[processed] order ${order.orderId} for ${order.customer} ($${order.amount})`);
-}
+const API_PORT = process.env.API_PORT || 3000;
+const AMQP_URL = process.env.AMQP_URL || "amqp://guest:guest@localhost:5672";
 
 async function main() {
-  const connection = await amqp.connect("amqp://guest:guest@localhost:5672");
+  const connection = await amqp.connect(AMQP_URL);
   const channel = await connection.createChannel();
 
   await channel.assertExchange(EXCHANGE, "direct", { durable: true });
@@ -38,17 +21,13 @@ async function main() {
 
   console.log(`Consumer listening on "${QUEUE}" (routing key: "${ROUTING_KEY}")...`);
 
-  channel.consume(QUEUE, async (msg) => {
-    if (msg === null) return;
+  channel.consume(QUEUE, (msg) => handleMessage(channel, msg));
 
-    const order = JSON.parse(msg.content.toString());
-    try {
-      await simulateProcessing(order);
-      channel.ack(msg); // tell RabbitMQ this message was handled successfully
-    } catch (err) {
-      console.error("Processing failed, requeueing message:", err);
-      channel.nack(msg, false, true); // put it back on the queue to retry
-    }
+  const app = createApp(channel.publish.bind(channel));
+  app.listen(API_PORT, () => {
+    console.log(`Orders API listening on http://localhost:${API_PORT}`);
+    console.log(`  POST /login {"username":"admin","password":"admin123"}`);
+    console.log(`  POST /login {"username":"customer1","password":"customer123"}`);
   });
 }
 

@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/kaurmukhveer/rabbitmq-order-events/schema/order-schema.json",
+  "title": "OrderEvent",
+  "description": "The message contract shared by every producer and consumer in this system, regardless of language.",
+  "type": "object",
+  "required": ["schemaVersion", "orderId", "customer", "amount", "createdAt"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "orderId": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "customer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "amount": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d{2}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

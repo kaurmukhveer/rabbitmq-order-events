@@ -10,3 +10,36 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  consumer:
+    build: .
+    container_name: order-consumer
+    command: ["node", "consumer.js"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      JWT_SECRET: dev-only-secret-change-me
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+    ports:
+      - "3000:3000" # Orders API
+    volumes:
+      - orders-data:/app/data # SQLite file survives `docker-compose restart consumer`
+
+  producer:
+    build: .
+    container_name: order-producer
+    command: ["node", "producer.js"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      AMQP_URL: amqp://guest:guest@rabbitmq:5672
+
+volumes:
+  orders-data:
