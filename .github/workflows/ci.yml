@@ -11,9 +11,14 @@ jobs:
     name: Unit tests (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+      fail-fast: false 
+     matrix:
+        # windows-latest is intentionally excluded: better-sqlite3's native
+        # addon doesn't reliably build from source on GitHub's Windows
+        # runners, and this project only ever deploys to Linux (see
+        # Dockerfile / docker-compose.yml), so Windows coverage isn't
+        # testing a real deployment target.
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
