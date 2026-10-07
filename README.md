@@ -41,12 +41,13 @@ database, and exposes them through a small, secured REST API.
   containers via `docker-compose`, with a named volume so the SQLite file
   survives a container restart.
 - **CI (GitHub Actions)**: `.github/workflows/ci.yml` runs the Jest suite and
-  the Python schema tests on Linux, Windows, and macOS on every push. A
-  second job brings up RabbitMQ as a Docker service container and runs the
-  full producer → consumer → Orders API → `smoke_test.sh` pipeline —
+  the Python schema tests (pytest) on Linux and macOS on every push. Windows
+  was originally in the matrix but was dropped because the native
+  `better-sqlite3` build was unreliable on GitHub's Windows runners. A second
+  job brings up RabbitMQ as a Docker service container and runs the full
+  producer → consumer → Orders API → `smoke_test.sh` pipeline —
   intentionally Linux-only, since GitHub Actions service containers aren't
   available on Windows/macOS runners.
-
 ## Architecture
 
 ```
